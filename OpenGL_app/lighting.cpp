@@ -1,4 +1,5 @@
 #include "Lighting.h"
+#include "cube.h"
 
 Lighting::Lighting() {
  
@@ -98,80 +99,21 @@ void Lighting::setPointLightPositions(const std::vector<glm::vec3>& positions) {
     pointLightPositions = positions;
 }
 
-void Lighting::setupLightCubeVAO() {
-    // Vertices for the light cube (same as the ones for the regular cube)
-    float vertices[] = {
-           -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-           -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-           -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-           -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-           -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-           -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-           -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-           -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-           -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-           -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-           -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
-    // Set up the light cube VAO and VBO
-    unsigned int VBO, lightCubeVAO;
-    glGenVertexArrays(1, &lightCubeVAO);
-    glBindVertexArray(lightCubeVAO);
-    glGenBuffers(1, &VBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // note that we update the lamp's position attribute's stride to reflect the updated buffer data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0); // Unbind the VAO after setting up
-}
 
 void Lighting::drawLightCubes(Shader& lightCubeShader, const glm::mat4& view, const glm::mat4& projection) {
     lightCubeShader.use();
     lightCubeShader.setMat4("projection", projection);
     lightCubeShader.setMat4("view", view);
 
-    glBindVertexArray(lightCubeVAO);
-    for (size_t i = 0; i < pointLightPositions.size(); i++) {
-        std::cout << pointLightPositions.size() << std::endl;
+    for (const glm::vec3& position : pointLightPositions) {
+        Cube lightCube;  // Create a light cube for each point light
+
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, pointLightPositions[i]);
-        model = glm::scale(model, glm::vec3(0.2f));  // Smaller cubes to represent point lights
-        lightCubeShader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);  // Drawing the cube with 36 vertices
+        model = glm::translate(model, position);
+        model = glm::scale(model, glm::vec3(0.2f));  // Scale for smaller cubes to represent point lights
+
+        lightCube.updateModelMatrix(model);  // Update the model matrix of the cube
+        lightCube.setShaderAttributes(lightCubeShader);  // Set shader attributes specific to the cube
+        lightCube.render();  // Render the light cube
     }
-
-
 }

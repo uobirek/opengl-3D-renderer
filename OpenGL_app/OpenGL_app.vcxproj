@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cube.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="lighting.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -141,17 +142,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="cube.h" />
     <ClInclude Include="lighting.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="skybox.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="deferred_lighting.fs" />
-    <None Include="deffered_lighting.vs" />
+    <None Include="deferred.fs" />
+    <None Include="deferred.vs" />
+    <None Include="deferred_shading.fs" />
+    <None Include="deffered_shading.vs" />
     <None Include="g_buffer.fs" />
     <None Include="g_buffer.vs" />
     <None Include="shader.fs" />

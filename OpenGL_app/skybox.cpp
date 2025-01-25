@@ -2,9 +2,10 @@
 #include <iostream>
 #include "stb_image.h"
 
-Skybox::Skybox(const std::vector<std::string>& dayFaces, const std::vector<std::string>& nightFaces, Shader& shader)
+Skybox::Skybox( Shader& shader)
     : skyboxShader(shader) {
     // Load cubemap textures
+  
     dayCubemapTexture = loadCubemap(dayFaces);
     nightCubemapTexture = loadCubemap(nightFaces);
 

@@ -10,7 +10,7 @@
 
 class Skybox {
 public:
-    Skybox(const std::vector<std::string>& dayFaces, const std::vector<std::string>& nightFaces, Shader& shader);
+    Skybox(Shader& shader);
     ~Skybox();
 
     void render(const glm::mat4& view, const glm::mat4& projection, int newTime, float deltaTime);
@@ -28,6 +28,16 @@ private:
     float bindTextures() ;
 
     const float ROTATE_SPEED = 10.0f;
+    // Paths for day and night skybox textures
+    const std::vector<std::string> dayFaces = {
+        "skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg",
+        "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"
+    };
+
+    const std::vector<std::string> nightFaces = {
+        "skybox/nightRight.jpg", "skybox/nightLeft.jpg", "skybox/nightTop.jpg",
+        "skybox/nightBottom.jpg", "skybox/nightFront.jpg", "skybox/nightBack.jpg"
+    };
 };
 
 #endif

@@ -1,21 +1,23 @@
-﻿
-
-#define STB_IMAGE_IMPLEMENTATION
+﻿#define STB_IMAGE_IMPLEMENTATION
+// External libraries
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <iostream>
-#include "camera.h"
+
+// Utilities
 #include "stb_image.h"
+
+// Project-specific headers
+#include "camera.h"
 #include "shader.h"
 #include "model.h"
 #include "skybox.h"
 #include "lighting.h"
 #include "sphere.h"
+#include "cube.h"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -23,6 +25,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 unsigned int loadTexture(const char* path);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+void renderQuad();
+
 
 
 
@@ -39,8 +43,6 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
-
 int skyboxTime = 0;
 
 int main()
@@ -69,87 +71,17 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
-
-    // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+
     stbi_set_flip_vertically_on_load(true);
 
-    float vertices[] = {
-        // Positions           // Normals
-        // Front face
-        -0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,
 
-        // Back face
-        -0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f,
-
-        // Left face
-        -0.5f,  0.5f,  0.5f,  -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  -1.0f,  0.0f,  0.0f,
-
-        // Right face
-         0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,   1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f,
-
-         // Bottom face
-         -0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,
-          0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,
-          0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,
-          0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,
-         -0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,
-         -0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,
-
-         // Top face
-         -0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,
-          0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,
-          0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,
-          0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,
-         -0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,
-         -0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f
-    };
-
-    // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0); // Position
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1); // Normal
 
     // configure global opengl state
     // -----------------------------
@@ -162,8 +94,8 @@ int main()
     Shader skyboxShader("skybox_shader.vs", "skybox_shader.fs");
 
 
-    Shader shaderGeometryPass("8.1.g_buffer.vs", "8.1.g_buffer.fs");
-    Shader shaderLightingPass("8.1.deferred_shading.vs", "8.1.deferred_shading.fs");
+    Shader shaderGeometryPass("g_buffer.vs", "g_buffer.fs");
+    Shader shaderLightingPass("deferred.vs", "deferred.fs");
 
 
     // load models
@@ -185,44 +117,210 @@ int main()
 
     stbi_set_flip_vertically_on_load(false);
 
-    vector<std::string> dayFaces
-    {
-        "skybox/right.jpg",
-            "skybox/left.jpg",
-            "skybox/top.jpg",
-            "skybox/bottom.jpg",
-            "skybox/front.jpg",
-            "skybox/back.jpg"
-    };
-    vector<std::string> nightFaces
-    {
-        "skybox/nightRight.jpg",
-            "skybox/nightLeft.jpg",
-            "skybox/nightTop.jpg",
-            "skybox/nightBottom.jpg",
-            "skybox/nightFront.jpg",
-            "skybox/nightBack.jpg"
-    };
-
-
-
-
-    Skybox skybox(dayFaces, nightFaces, skyboxShader);
+    Skybox skybox( skyboxShader);
     Sphere staticSphere;   // Static sphere (blue)
     Sphere movingSphere;
+    Cube cube;
+
+    std::vector<glm::vec3> objectPositions;
+    objectPositions.push_back(glm::vec3(-3.0, -0.5, -3.0));
+    objectPositions.push_back(glm::vec3(0.0, -0.5, -3.0));
+    objectPositions.push_back(glm::vec3(3.0, -0.5, -3.0));
+    objectPositions.push_back(glm::vec3(-3.0, -0.5, 0.0));
+    objectPositions.push_back(glm::vec3(0.0, -0.5, 0.0));
+    objectPositions.push_back(glm::vec3(3.0, -0.5, 0.0));
+    objectPositions.push_back(glm::vec3(-3.0, -0.5, 3.0));
+    objectPositions.push_back(glm::vec3(0.0, -0.5, 3.0));
+    objectPositions.push_back(glm::vec3(3.0, -0.5, 3.0));
+    // configure g-buffer framebuffer
+    // ------------------------------
+    unsigned int gBuffer;
+    glGenFramebuffers(1, &gBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+    unsigned int gPosition, gNormal, gAlbedoSpec;
+    // position color buffer
+    glGenTextures(1, &gPosition);
+    glBindTexture(GL_TEXTURE_2D, gPosition);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+    // normal color buffer
+    glGenTextures(1, &gNormal);
+    glBindTexture(GL_TEXTURE_2D, gNormal);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
+    // color + specular color buffer
+    glGenTextures(1, &gAlbedoSpec);
+    glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
+    // create and attach depth buffer (renderbuffer)
+    unsigned int rboDepth;
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    // finally check if framebuffer is complete
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // lighting info
+    // -------------
+    const unsigned int NR_LIGHTS = 2; // Only two lights now
+    std::vector<glm::vec3> lightPositions;
+    std::vector<glm::vec3> lightColors;
+
+    // Define positions for two lights
+    lightPositions.push_back(glm::vec3(2.0f, 1.0f, -2.0f)); // Light 1 position
+    lightPositions.push_back(glm::vec3(-1.0f, -1.0f, 2.0f)); // Light 2 position
+
+    // Define colors for two lights
+    lightColors.push_back(glm::vec3(1.0f, 1.0f, 1.0f)); // Warm light
+    lightColors.push_back(glm::vec3(0.0f, 0.0f, 1.0f)); // Cool light
 
 
+    // shader configuration
+    // --------------------
+    shaderLightingPass.use();
+    shaderLightingPass.setInt("gPosition", 0);
+    shaderLightingPass.setInt("gNormal", 1);
+    shaderLightingPass.setInt("gAlbedoSpec", 2);
 
+    Cube lightcubespecial;
 
-    // render loop
-    // -----------
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        skyboxTime += deltaTime * 1000; 
+        skyboxTime += deltaTime * 1000;
+        skyboxTime %= 24000;
+
+        processInput(window);
+
+        glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glEnable(GL_DEPTH_TEST);
+
+
+        // LIGHT
+      //  lightingShader.use();
+       // lightingShader.setVec3("viewPos", camera.Position);
+       // lightingShader.setFloat("material.shininess", 32.0f);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+     //   lightingShader.setMat4("projection", projection);
+      //  lightingShader.setMat4("view", view);
+
+        shaderGeometryPass.use();
+        shaderGeometryPass.setMat4("projection", projection);
+        shaderGeometryPass.setMat4("view", view);
+
+
+        // BACKPACK
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Place the backpack at the origin
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));     // Scale it as needed
+      //  lightingShader.setMat4("model", model);
+       // lightingShader.setBool("material.useTextures", true);
+        shaderGeometryPass.setMat4("model", model);
+        ourModel.Draw(shaderGeometryPass);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+        /// LIGHT PASS
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        shaderLightingPass.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, gPosition);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gNormal);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+        // send light relevant uniforms
+        for (unsigned int i = 0; i < lightPositions.size(); i++)
+        {
+            shaderLightingPass.setVec3("lights[" + std::to_string(i) + "].Position", lightPositions[i]);
+            shaderLightingPass.setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
+            // update attenuation parameters and calculate radius
+            const float linear = 0.7f;
+            const float quadratic = 1.8f;
+            shaderLightingPass.setFloat("lights[" + std::to_string(i) + "].Linear", linear);
+            shaderLightingPass.setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);
+        }
+        shaderLightingPass.setVec3("viewPos", camera.Position);
+        // finally render quad
+        renderQuad();
+
+
+        // COPY CONTENT OF GEOMETRY'S DEPTH
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+        // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
+        // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the 		
+        // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
+        glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+        lightCubeShader.use();
+        lightCubeShader.setMat4("projection", projection);
+        lightCubeShader.setMat4("view", view);
+        lightCubeShader.use();
+        lightCubeShader.setMat4("projection", projection);
+        lightCubeShader.setMat4("view", view);
+
+        for (const glm::vec3& position : lightPositions) {
+            Cube lightCube;  // Create a light cube for each point light
+
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, position);
+            model = glm::scale(model, glm::vec3(0.2f));  // Scale for smaller cubes to represent point lights
+
+            lightCube.updateModelMatrix(model);  // Update the model matrix of the cube
+            lightCube.setShaderAttributes(lightCubeShader);  // Set shader attributes specific to the cube
+            lightCube.render();  // Render the light cube
+        }
+
+        //SKY BOX
+        skybox.render(camera.GetViewMatrix(), projection, skyboxTime, deltaTime);
+
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        // -------------------------------------------------------------------------------
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+
+    while (!glfwWindowShouldClose(window))
+    {
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        skyboxTime += deltaTime * 1000;
         skyboxTime %= 24000;
 
         processInput(window);
@@ -237,7 +335,7 @@ int main()
         lightingShader.use();
         lightingShader.setVec3("viewPos", camera.Position);
         lightingShader.setFloat("material.shininess", 32.0f);
-     
+
 
 
         // view/projection transformations
@@ -272,12 +370,12 @@ int main()
 
         // Static sphere (no movement)
         glm::mat4 staticSphereModel = glm::mat4(1.0f);
-        staticSphereModel = glm::translate(staticSphereModel, glm::vec3(0.0f, 0.0f, 5.0f));  
-        staticSphereModel = glm::scale(staticSphereModel, glm::vec3(0.5f));                  
+        staticSphereModel = glm::translate(staticSphereModel, glm::vec3(0.0f, 0.0f, 5.0f));
+        staticSphereModel = glm::scale(staticSphereModel, glm::vec3(0.5f));
 
-        staticSphere.updateModelMatrix(staticSphereModel);  
-        staticSphere.setShaderAttributes(lightingShader); 
-        staticSphere.render();  
+        staticSphere.updateModelMatrix(staticSphereModel);
+        staticSphere.setShaderAttributes(lightingShader);
+        staticSphere.render();
 
         // Moving sphere (animated over time)
         glm::mat4 movingSphereModel = glm::mat4(1.0f);
@@ -300,20 +398,23 @@ int main()
         movingSphere.render();
 
 
-        // CUBE
-        lightingShader.setVec3("material.ambientColor", 0.1f, 0.7f, 0.1f);  
-        lightingShader.setVec3("material.diffuseColor", 0.3f, 0.7f, 0.3f);  
-        lightingShader.setVec3("material.specularColor", 1.0f, 1.0f, 1.0f); 
-        lightingShader.setFloat("material.shininess", 50.0f);
+
+        // Cube Shader settings (similar to sphere but with green tones)
+        lightingShader.setVec3("material.ambientColor", 0.1f, 0.7f, 0.1f);  // Green ambient
+        lightingShader.setVec3("material.diffuseColor", 0.3f, 0.7f, 0.3f);  // Green diffuse
+        lightingShader.setVec3("material.specularColor", 1.0f, 1.0f, 1.0f); // White specular
+        lightingShader.setFloat("material.shininess", 50.0f);                // High shininess
         lightingShader.setBool("material.useTextures", false);
 
-        glm::mat4 cubemodel = glm::mat4(1.0f);
-        cubemodel = glm::translate(cubemodel, glm::vec3(10.0f, 0.0f, 0.0f));
-        cubemodel = glm::scale(cubemodel, glm::vec3(2.0f));
-        lightingShader.setMat4("model", cubemodel);
+        // Cube transformation
+        glm::mat4 cubeModel = glm::mat4(1.0f);
+        cubeModel = glm::translate(cubeModel, glm::vec3(10.0f, 0.0f, 0.0f)); // Translate to position
+        cubeModel = glm::scale(cubeModel, glm::vec3(2.0f));                  // Scale uniformly
 
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // Update cube's model matrix and render it
+        cube.updateModelMatrix(cubeModel);
+        cube.setShaderAttributes(lightingShader);
+        cube.render();
 
 
 
@@ -324,11 +425,9 @@ int main()
 
         glm::vec3 spotlightPosition = spherePosition + normalDirection * sphereRadius; // Move light to surface
 
-        // Compute direction vector from spotlight to cube
         glm::vec3 cubePosition = glm::vec3(8.0f, 0.0f, 0.0f);
         glm::vec3 spotlightDirection = glm::normalize(cubePosition - spotlightPosition);
 
-        // Set lighting uniforms
         lighting.setLightingUniforms(lightingShader, camera, skyboxTime, spotlightPosition, spotlightDirection);
 
         // LIGHT CUBE - TODO: not working
@@ -352,8 +451,44 @@ int main()
     glfwTerminate();
     return 0;
 }
+unsigned int quadVAO = 0, quadVBO;
 
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        // Define vertices for a screen-filling quad
+        float quadVertices[] = {
+            // positions   // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
 
+            -1.0f,  1.0f,  0.0f, 1.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f,  1.0f, 1.0f
+        };
+
+        // Create VAO and VBO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    }
+
+    // Render the quad
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
 
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

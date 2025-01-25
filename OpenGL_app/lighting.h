@@ -15,7 +15,6 @@ public:
     void setPointLightPositions(const std::vector<glm::vec3>& positions);
 
 private:
-    void setupLightCubeVAO(); 
     std::vector<glm::vec3> pointLightPositions;
     glm::vec3 lightCubeColor = glm::vec3(1.0f, 1.0f, 1.0f);  
 
