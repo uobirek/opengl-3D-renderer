@@ -50,7 +50,7 @@ in vec2 TexCoords;
 uniform vec3 viewPos;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
-uniform SpotLight spotLight;
+uniform SpotLight spotLights[2];
 uniform Material material;
 
 uniform float useFakeLighting;
@@ -73,8 +73,9 @@ void main()
 
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
+           for(int i = 0; i < 2; i++)
+        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);    
 
-    result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
     
     // Calculate the distance between the fragment and the camera
     float dist = length(FragPos.xyz - viewPos);  // Distance from the camera to the fragment
@@ -89,6 +90,8 @@ void main()
     // Apply fog by blending the lighting with the fog color based on the fog factor
     FragColor = vec4(result, 1.0);
     FragColor = mix(fog_colour, FragColor, fog_factor);  // Mix between scene color and fog color
+
+
 }
 
 

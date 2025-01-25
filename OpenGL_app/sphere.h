@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <glad/glad.h>
+#include "Shader.h"
 
 class Sphere {
 public:
@@ -21,3 +22,4 @@ private:
 };
 
 #endif
+#pragma once

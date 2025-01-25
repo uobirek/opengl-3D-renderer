@@ -133,19 +133,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\sphereShader\sphereShader\src\Sphere.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="lighting.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="skybox.cpp" />
+    <ClCompile Include="sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\sphereShader\sphereShader\src\Sphere.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="lighting.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="skybox.h" />
+    <ClInclude Include="sphere.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="deferred_lighting.fs" />
+    <None Include="deffered_lighting.vs" />
+    <None Include="g_buffer.fs" />
+    <None Include="g_buffer.vs" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
     <None Include="light_cube.fs" />
