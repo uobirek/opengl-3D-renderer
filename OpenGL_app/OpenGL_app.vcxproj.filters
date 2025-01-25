@@ -21,6 +21,9 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\sphereShader\sphereShader\src\Sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.h">
@@ -29,9 +32,25 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sphereShader\sphereShader\src\Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="3.3.shader.vs" />
-    <None Include="3.3.shader.fs" />
+    <None Include="shader.vs" />
+    <None Include="shader.fs" />
+    <None Include="light_cube.vs" />
+    <None Include="light_cube.fs" />
+    <None Include="skybox_shader.vs" />
+    <None Include="skybox_shader.fs" />
   </ItemGroup>
 </Project>

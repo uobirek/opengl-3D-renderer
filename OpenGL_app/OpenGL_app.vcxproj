@@ -107,13 +107,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Ula\Desktop\OpenGL\glm-master;C:\Users\Ula\Desktop\OpenGL\GLFWx32\include;C:\Users\Ula\Desktop\OpenGL\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\External Libraries\assimp\include;C:\Users\Ula\Desktop\OpenGL\glm-master;C:\Users\Ula\Desktop\OpenGL\GLFWx32\include;C:\Users\Ula\Desktop\OpenGL\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Ula\Desktop\OpenGL\GLFWx32\lib-vc2022;C:\Users\Ula\Desktop\OpenGL\glad\include;C:\Users\Ula\Desktop\OpenGL\glm-master;C:\Users\Ula\Desktop\OpenGL\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\External Libraries\assimp\lib;C:\Users\Ula\Desktop\OpenGL\GLFWx32\lib-vc2022;C:\Users\Ula\Desktop\OpenGL\glad\include;C:\Users\Ula\Desktop\OpenGL\glm-master;C:\Users\Ula\Desktop\OpenGL\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,16 +133,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\sphereShader\sphereShader\src\Sphere.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\sphereShader\sphereShader\src\Sphere.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="3.3.shader.fs" />
-    <None Include="3.3.shader.vs" />
+    <None Include="shader.fs" />
+    <None Include="shader.vs" />
+    <None Include="light_cube.fs" />
+    <None Include="light_cube.vs" />
+    <None Include="skybox_shader.fs" />
+    <None Include="skybox_shader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
