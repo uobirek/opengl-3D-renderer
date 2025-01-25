@@ -34,6 +34,8 @@ void Lighting::setLightingUniforms(Shader& lightingShader, const Camera& camera,
     lightingShader.setFloat("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
     lightingShader.setFloat("spotLights[1].outerCutOff", glm::cos(glm::radians(15.0f)));
 
+
+
     // Point lights (same as before)
     for (size_t i = 0; i < pointLightPositions.size(); ++i) {
         std::string index = std::to_string(i);
@@ -117,3 +119,4 @@ void Lighting::drawLightCubes(Shader& lightCubeShader, const glm::mat4& view, co
         lightCube.render();  // Render the light cube
     }
 }
+

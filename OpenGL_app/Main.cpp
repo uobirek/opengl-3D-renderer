@@ -101,8 +101,8 @@ int main()
     // load models
     // -----------
     Model ourModel("backpack/backpack.obj");
-    Lighting lighting;
-    lighting.setPointLightPositions({ glm::vec3(0.7f, 0.2f, 2.0f) });  // Set the point light positions
+    //Lighting lighting;
+    //lighting.setPointLightPositions({ glm::vec3(0.7f, 0.2f, 2.0f) });  // Set the point light positions
 
 
     // -----------------------------------------------------------------------------
@@ -197,6 +197,11 @@ int main()
 
     Cube lightcubespecial;
 
+
+    Lighting lighting;
+
+
+
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -218,6 +223,9 @@ int main()
       //  lightingShader.use();
        // lightingShader.setVec3("viewPos", camera.Position);
        // lightingShader.setFloat("material.shininess", 32.0f);
+
+
+
 
         glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -245,9 +253,41 @@ int main()
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));     // Scale it as needed
       //  lightingShader.setMat4("model", model);
        // lightingShader.setBool("material.useTextures", true);
+
+        shaderGeometryPass.setBool("material.useTextures", true);
+
+
         shaderGeometryPass.setMat4("model", model);
         ourModel.Draw(shaderGeometryPass);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+        // Update lighting uniforms
+
+
+        // Lighting info
+        const unsigned int NR_POINT_LIGHTS = 2; // Two point lights
+        const unsigned int NR_SPOT_LIGHTS = 1; // One spotlight
+
+        // Point light positions and colors
+        std::vector<glm::vec3> pointLightPositions;
+        std::vector<glm::vec3> pointLightColors;
+
+        pointLightPositions.push_back(glm::vec3(2.0f, 1.0f, -2.0f)); // Point Light 1
+        pointLightPositions.push_back(glm::vec3(-1.0f, -1.0f, 2.0f)); // Point Light 2
+
+        pointLightColors.push_back(glm::vec3(1.0f, 1.0f, 1.0f)); // Point Light 1 color
+        pointLightColors.push_back(glm::vec3(0.0f, 0.0f, 1.0f)); // Point Light 2 color
+
+
+        // Shader configuration
+        shaderLightingPass.use();
+        shaderLightingPass.setInt("gPosition", 0);
+        shaderLightingPass.setInt("gNormal", 1);
+        shaderLightingPass.setInt("gAlbedoSpec", 2);
+
+        lighting.setPointLightPositions(pointLightPositions);
+        lighting.setLightingUniforms(shaderLightingPass, camera, skyboxTime, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(5.0f, 0.0f, 3.0f));
 
 
         /// LIGHT PASS
@@ -271,8 +311,10 @@ int main()
             shaderLightingPass.setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);
         }
         shaderLightingPass.setVec3("viewPos", camera.Position);
-        // finally render quad
-        renderQuad();
+
+     renderQuad();
+
+
 
 
         // COPY CONTENT OF GEOMETRY'S DEPTH
@@ -285,24 +327,15 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
+
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
 
-        for (const glm::vec3& position : lightPositions) {
-            Cube lightCube;  // Create a light cube for each point light
+        lighting.drawLightCubes(lightCubeShader, view, projection);
+        // finally render quad
 
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, position);
-            model = glm::scale(model, glm::vec3(0.2f));  // Scale for smaller cubes to represent point lights
 
-            lightCube.updateModelMatrix(model);  // Update the model matrix of the cube
-            lightCube.setShaderAttributes(lightCubeShader);  // Set shader attributes specific to the cube
-            lightCube.render();  // Render the light cube
-        }
 
         //SKY BOX
         skybox.render(camera.GetViewMatrix(), projection, skyboxTime, deltaTime);

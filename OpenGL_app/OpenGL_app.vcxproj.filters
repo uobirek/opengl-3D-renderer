@@ -68,16 +68,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.vs" />
-    <None Include="shader.fs" />
     <None Include="light_cube.vs" />
     <None Include="light_cube.fs" />
     <None Include="skybox_shader.vs" />
     <None Include="skybox_shader.fs" />
     <None Include="g_buffer.vs" />
     <None Include="g_buffer.fs" />
-    <None Include="deffered_shading.vs" />
-    <None Include="deferred_shading.fs" />
     <None Include="deferred.fs" />
     <None Include="deferred.vs" />
+    <None Include="shader.fs" />
   </ItemGroup>
 </Project>

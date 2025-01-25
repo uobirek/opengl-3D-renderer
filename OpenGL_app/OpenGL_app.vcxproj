@@ -155,8 +155,6 @@
   <ItemGroup>
     <None Include="deferred.fs" />
     <None Include="deferred.vs" />
-    <None Include="deferred_shading.fs" />
-    <None Include="deffered_shading.vs" />
     <None Include="g_buffer.fs" />
     <None Include="g_buffer.vs" />
     <None Include="shader.fs" />
