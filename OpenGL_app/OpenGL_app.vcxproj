@@ -153,6 +153,8 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="1.advanced_lighting.fs" />
+    <None Include="1.advanced_lighting.vs" />
     <None Include="deferred.fs" />
     <None Include="deferred.vs" />
     <None Include="g_buffer.fs" />
