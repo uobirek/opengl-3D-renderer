@@ -38,7 +38,7 @@ struct SpotLight {
 };
 #define NR_POINT_LIGHTS 2
 
-#define NR_SPOT_LIGHTS 1
+#define NR_SPOT_LIGHTS 2
 
 // Uniforms
 uniform DirLight dirLight;
@@ -53,6 +53,10 @@ out vec4 FragColor;
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 albedo, float specularStrength);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float specularStrength);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float specularStrength);
+
+float fog_maxdist = 15.0;
+float fog_mindist = 5;
+vec4  fog_colour = vec4(0.4, 0.4, 0.4, 1.0);
 
 void main() {
     // Retrieve data from G-buffer
@@ -78,8 +82,21 @@ void main() {
         result += CalcSpotLight(spotLights[i], normal, fragPos, viewDir, albedo, specularStrength);
     }
 
-    // Final Color
+        // Calculate the distance between the fragment and the camera
+    float dist = length(fragPos.xyz - viewPos);  // Distance from the camera to the fragment
+    
+    // Adjust the fog factor to increase with distance (distance fog effect)
+ float fog_factor = (fog_maxdist - dist) /
+                  (fog_maxdist - fog_mindist);
+
+    // Ensure the fog factor is between 0.0 and 1.0 (clamp it)
+    fog_factor = clamp(fog_factor, 0.0, 1.0);
+    
+    // Apply fog by blending the lighting with the fog color based on the fog factor
     FragColor = vec4(result, 1.0);
+    FragColor = mix(fog_colour, FragColor, fog_factor);  // Mix between scene color and fog color
+
+
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 albedo, float specularStrength) {
