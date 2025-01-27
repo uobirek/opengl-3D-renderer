@@ -28,7 +28,6 @@ private:
     float bindTextures() ;
 
     const float ROTATE_SPEED = 10.0f;
-    // Paths for day and night skybox textures
     const std::vector<std::string> dayFaces = {
         "skybox/right.jpg", "skybox/left.jpg", "skybox/top.jpg",
         "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg"

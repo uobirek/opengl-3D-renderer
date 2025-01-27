@@ -4,7 +4,6 @@
 
 Skybox::Skybox( Shader& shader)
     : skyboxShader(shader) {
-    // Load cubemap textures
   
     dayCubemapTexture = loadCubemap(dayFaces);
     nightCubemapTexture = loadCubemap(nightFaces);
@@ -109,7 +108,7 @@ float Skybox::bindTextures( ) {
 
     int texture1;
     int texture2;
-    float blendFactor = 0.0f; // Default blendFactor (no blending)
+    float blendFactor = 0.0f; 
 
     if (skyboxTime >= 0 && skyboxTime < 5000) {
         // Full night

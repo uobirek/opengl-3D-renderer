@@ -8,7 +8,7 @@
 // Constructor to initialize the sphere
 Sphere::Sphere() : sphereVAO(0), sphereVBO(0), sphereEBO(0), indexCount(0) {
     setupSphere();
-    modelMatrix = glm::mat4(1.0f);  // Identity matrix by default
+    modelMatrix = glm::mat4(1.0f); 
 }
 
 // Set up the sphere's VAO, VBO, and EBO

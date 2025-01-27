@@ -59,9 +59,6 @@
     <ClInclude Include="sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -79,5 +76,8 @@
     <None Include="shader.fs" />
     <None Include="1.advanced_lighting.vs" />
     <None Include="1.advanced_lighting.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Dokumentacja.txt" />
   </ItemGroup>
 </Project>

@@ -36,7 +36,7 @@ struct SpotLight {
     vec3 diffuse;
     vec3 specular;
 };
-#define NR_POINT_LIGHTS 1
+#define NR_POINT_LIGHTS 4
 
 #define NR_SPOT_LIGHTS 2
 
@@ -46,8 +46,8 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 uniform vec3 viewPos;
 
-uniform float Ks;        // Specular intensity multiplier (0.0 - 1.0)
-uniform float shininess; // Shininess factor (e.g., 8.0 - 128.0)
+uniform float Ks;        
+uniform float shininess; 
 
 // Output
 out vec4 FragColor;
@@ -57,8 +57,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 albedo, float 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float specularStrength);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float specularStrength);
 
-float fog_maxdist = 15.0;
-float fog_mindist = 5;
+float fog_maxdist = 25.0;
+float fog_mindist = 15.0;
 vec4  fog_colour = vec4(0.4, 0.4, 0.4, 1.0);
 
 
@@ -70,13 +70,13 @@ void main() {
     vec3 normal = normalize(texture(gNormal, TexCoords).rgb);
     vec4 albedoSpec = texture(gAlbedoSpec, TexCoords);
     vec3 albedo = albedoSpec.rgb;
-    float specularStrength = albedoSpec.a * Ks;  // Multiply by user-defined intensity
+    float specularStrength = albedoSpec.a * Ks;  
 
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 result = vec3(0.0);
 
     //// Directional Light
-    //result += CalcDirLight(dirLight, normal, viewDir, albedo, specularStrength);
+   result += CalcDirLight(dirLight, normal, viewDir, albedo, specularStrength);
 
     // Point Lights
     for (int i = 0; i < NR_POINT_LIGHTS; i++) {
@@ -88,40 +88,32 @@ void main() {
         result += CalcSpotLight(spotLights[i], normal, fragPos, viewDir, albedo, specularStrength);
     }
 
-        // Calculate the distance between the fragment and the camera
-    float dist = length(fragPos.xyz - viewPos);  // Distance from the camera to the fragment
+    float dist = length(fragPos.xyz - viewPos);  
     
-    // Adjust the fog factor to increase with distance (distance fog effect)
  float fog_factor = (fog_maxdist - dist) /
                   (fog_maxdist - fog_mindist);
 
-    // Ensure the fog factor is between 0.0 and 1.0 (clamp it)
     fog_factor = clamp(fog_factor, 0.0, 1.0);
     
-    // Apply fog by blending the lighting with the fog color based on the fog factor
     FragColor = vec4(result, 1.0);
-   // FragColor = mix(fog_colour, FragColor, fog_factor);  // Mix between scene color and fog color
+    FragColor = mix(fog_colour, FragColor, fog_factor);  
 
 
 }
-
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 albedo, float specularStrength) {
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
     float spec = 0.0;
-    if(blinn)
-    {
+    if(blinn) {
         vec3 halfwayDir = normalize(lightDir + viewDir);  
-        spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-    }
-    else
-    {
+        spec = pow(max(dot(normal, halfwayDir), 0.0), shininess * 4);
+    } else {
         vec3 reflectDir = reflect(-lightDir, normal);
-        spec = pow(max(dot(viewDir, reflectDir), 0.0), 8.0);
+        spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     }
     vec3 ambient = light.ambient * albedo;
     vec3 diffuse = light.diffuse * diff * albedo;
-    vec3 specular = light.specular * spec;
+    vec3 specular = light.specular * spec * specularStrength * Ks; // Scale specular by Ks
 
     return (ambient + diffuse + specular);
 }
@@ -129,24 +121,20 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 albedo, float 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float specularStrength) {
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-   float spec = 0.0;
-    if(blinn)
-    {
+    float spec = 0.0;
+    if(blinn) {
         vec3 halfwayDir = normalize(lightDir + viewDir);  
         spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-
-    }
-    else
-    {
+    } else {
         vec3 reflectDir = reflect(-lightDir, normal);
-        spec = pow(max(dot(viewDir, reflectDir), 0.0), 8.0);
+        spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess * 4);
     }
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
 
     vec3 ambient = light.ambient * albedo * attenuation;
     vec3 diffuse = light.diffuse * diff * albedo * attenuation;
-    vec3 specular = light.specular * spec * attenuation;
+    vec3 specular = light.specular * spec * attenuation * specularStrength * Ks; // Scale specular by Ks
 
     return (ambient + diffuse + specular);
 }
@@ -155,15 +143,12 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
     float spec = 0.0;
-    if(blinn)
-    {
+    if(blinn) {
         vec3 halfwayDir = normalize(lightDir + viewDir);  
         spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-    }
-    else
-    {
+    } else {
         vec3 reflectDir = reflect(-lightDir, normal);
-        spec = pow(max(dot(viewDir, reflectDir), 0.0), 8.0);
+        spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess * 4);
     }
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
@@ -174,7 +159,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
 
     vec3 ambient = light.ambient * albedo * attenuation * intensity;
     vec3 diffuse = light.diffuse * diff * albedo * attenuation * intensity;
-    vec3 specular = light.specular * spec * attenuation * intensity;
+    vec3 specular = light.specular * spec * attenuation * intensity * specularStrength * Ks; // Scale specular by Ks
 
     return (ambient + diffuse + specular);
 }

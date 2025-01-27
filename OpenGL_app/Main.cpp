@@ -265,17 +265,26 @@ int main()
 		shaderGeometryPass.setMat4("view", view);
 
 		shaderGeometryPass.setBool("useTexture", true);
-
+		float time = static_cast<float>(glfwGetTime()); 
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(5.0f, 5.0f, 0.0f));
+
+		
+		float xPos = 15.0f + abs(sin(time)) * 5.0f; 
+		float zPos = 15.0f + abs(cos(time)) * 5.0f; 
+		model = glm::translate(model, glm::vec3(xPos, 1.0f, zPos));
+		float angle = time; 
+		model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f)); 
+
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+
 		shaderGeometryPass.setMat4("model", model);
+
 		ourModel.Draw(shaderGeometryPass);
 
 
 
-		// Cube Shader settings (similar to sphere but with green tones)
-		shaderGeometryPass.setVec3("fixedColor", 1.0f, 0.7f, 0.1f);  // Green ambient
+
+		shaderGeometryPass.setVec3("fixedColor", 1.0f, 0.7f, 0.1f);  
 
 		shaderGeometryPass.setBool("useTexture", false);
 
@@ -290,6 +299,7 @@ int main()
 		staticSphere.render();
 
 
+		shaderGeometryPass.setVec3("fixedColor", 0.5f, 0.7f, 0.1f);  // Green ambient
 
 		// Sphere movement (oscillating along X-axis)
 		glm::mat4 movingSphereModel = glm::mat4(1.0f);
@@ -313,20 +323,19 @@ int main()
 		movingSphere.render();
 		glm::vec3 spherePosition = centerPosition + animatedOffset;
 		// THIRD-PERSON CAMERA (Following Behind the Sphere)
-		if (isFollowingSphere) {
-			float cameraDistance = 5.0f;  // Distance behind the sphere
-			float cameraHeight = 2.0f;    // Height above the sphere
+		if(isFollowingSphere) {
+			float cameraDistance = 0.0f;  
+			float cameraHeight = 2.0f;    
 
-			// Calculate sphere's new position
-
-
-			// Calculate third-person camera position (ALWAYS behind the sphere)
 			glm::vec3 cameraOffset = glm::vec3(0.0f, cameraHeight, -cameraDistance);
 			glm::vec3 cameraPosition = spherePosition + cameraOffset;
 
-			// Update camera
 			camera.Position = cameraPosition;
-			camera.Front = glm::normalize(spherePosition - cameraPosition);
+
+			glm::vec3 fixedCubePosition = glm::vec3(10.0f, 0.0f, 0.0f);
+			camera.Front = glm::normalize(fixedCubePosition - cameraPosition);
+
+			camera.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 		}
 		else if (isLookingAtSphere) {
 			glm::vec3 fixedCameraPosition = glm::vec3(0.0f, 5.0f, -6.0f); // Camera in a fixed spot
@@ -338,25 +347,25 @@ int main()
 
 		// Cube transformation
 		glm::mat4 cubeModel = glm::mat4(1.0f);
-		cubeModel = glm::translate(cubeModel, glm::vec3(8.0f, 0.0f, 0.0f)); // Translate to position
-		cubeModel = glm::scale(cubeModel, glm::vec3(3.0f));                  // Scale uniformly
+		cubeModel = glm::translate(cubeModel, glm::vec3(10.0f, 0.0f, 0.0f));
+		cubeModel = glm::scale(cubeModel, glm::vec3(3.0f));                  
 
 		// Update cube's model matrix and render it
 		cube.updateModelMatrix(cubeModel);
 		cube.setShaderAttributes(shaderGeometryPass);
 		cube.render();
 
-		spherePosition = centerPosition + animatedOffset; // Final center position
-		glm::vec3 normalDirection = glm::normalize(animatedOffset);  // Normal from center to surface
-		float sphereRadius = 0.5f;  // Scale factor used earlier
+		spherePosition = centerPosition + animatedOffset;
+		glm::vec3 normalDirection = glm::normalize(animatedOffset); 
+		float sphereRadius = 0.5f; 
 
-		glm::vec3 spotlightPosition = spherePosition + normalDirection * sphereRadius; // Move light to surface
+		glm::vec3 spotlightPosition = spherePosition + normalDirection * sphereRadius; 
 
-		glm::vec3 cubePosition = glm::vec3(8.0f, 0.0f, 0.0f);
+		glm::vec3 cubePosition = glm::vec3(10.0f, 0.0f, 0.0f);
 
-		// Calculate the final spotlight direction
 		glm::vec3 spotlightDirection = glm::normalize((cubePosition - spotlightPosition) + manualOffset);
 
+		shaderGeometryPass.setVec3("fixedColor", 0.5f, 0.1f, 0.7f);  
 
 		glBindVertexArray(planeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -385,6 +394,11 @@ int main()
 		std::vector<glm::vec3> pointLightPositions;
 	//	pointLightPositions.push_back(glm::vec3(2.0f, 1.0f, -2.0f)); // Point Light 1
 		pointLightPositions.push_back(glm::vec3(0.0f,0.0f, 0.0f)); // Point Light 2
+		pointLightPositions.push_back(glm::vec3(0.0f, 1.0f, 3.0f)); // Point Light 2
+
+		pointLightPositions.push_back(glm::vec3(2.0f, 4.0f, 0.0f)); // Point Light 2
+		pointLightPositions.push_back(glm::vec3(3.0f, 0.0f, 1.0f)); // Point Light 2
+
 		lighting.setPointLightPositions(pointLightPositions);
 		lighting.setLightingUniforms(shaderLightingPass, camera, skyboxTime, spotlightPosition, spotlightDirection);
 
