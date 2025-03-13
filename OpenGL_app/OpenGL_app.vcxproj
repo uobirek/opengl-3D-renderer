@@ -107,13 +107,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\External Libraries\assimp\include;C:\Users\Ula\Desktop\OpenGL\glm-master;C:\Users\Ula\Desktop\OpenGL\GLFWx32\include;C:\Users\Ula\Desktop\OpenGL\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\OpenGL\glm-master;$(SolutionDir)\OpenGL\GLFWx32\include;$(SolutionDir)\OpenGL\glad\include;$(SolutionDir)\External Libraries\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External Libraries\assimp\lib;C:\Users\Ula\Desktop\OpenGL\GLFWx32\lib-vc2022;C:\Users\Ula\Desktop\OpenGL\glad\include;C:\Users\Ula\Desktop\OpenGL\glm-master;C:\Users\Ula\Desktop\OpenGL\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\OpenGL\GLFWx32\lib-vc2022;$(SolutionDir)\OpenGL\glad\include;$(SolutionDir)\OpenGL\glm-master;$(SolutionDir)\OpenGL\;$(SolutionDir)\External Libraries\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
